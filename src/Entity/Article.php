@@ -3,9 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\CommentRepository;
+use App\Service\UploaderHelper;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -109,7 +110,6 @@ class Article
         return $this;
     }
 
-
     public function getSlug(): ?string
     {
         return $this->slug;
@@ -134,17 +134,17 @@ class Article
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTimeInterface
+    public function getPublishedAt(): ?DateTimeInterface
     {
         return $this->publishedAt;
     }
 
     public function isPublished(): bool
     {
-        return $this->publishedAt !== null;
+        return null !== $this->publishedAt;
     }
 
-    public function setPublishedAt(?\DateTimeInterface $publishedAt): self
+    public function setPublishedAt(?DateTimeInterface $publishedAt): self
     {
         $this->publishedAt = $publishedAt;
 
@@ -184,7 +184,7 @@ class Article
 
     public function getImagePath()
     {
-        return 'images/'.$this->getImageFilename();
+        return UploaderHelper::ARTICLE_IMAGE.'/'.$this->getImageFilename();
     }
 
     /**
@@ -271,7 +271,7 @@ class Article
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
-        if (stripos($this->getTitle(), 'the borg') !== false) {
+        if (false !== stripos($this->getTitle(), 'the borg')) {
             $context->buildViolation('Um.. the Bork kinda makes us nervous')
                 ->atPath('title')
                 ->addViolation();
@@ -287,7 +287,7 @@ class Article
     {
         $this->location = $location;
 
-        if (!$this->location || $this->location === 'interstellar_space') {
+        if (!$this->location || 'interstellar_space' === $this->location) {
             $this->setSpecificLocationName(null);
         }
 
