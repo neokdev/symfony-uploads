@@ -7,6 +7,7 @@ use App\Form\ArticleFormType;
 use App\Repository\ArticleRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -25,6 +26,8 @@ class ArticleAdminController extends BaseController
      * @param UploaderHelper         $helper
      *
      * @return RedirectResponse|Response
+     *
+     * @throws Exception
      */
     public function new(EntityManagerInterface $em, Request $request, UploaderHelper $helper)
     {
@@ -39,7 +42,7 @@ class ArticleAdminController extends BaseController
             $uploadedFile = $form['imageFile']->getData();
 
             if ($uploadedFile) {
-                $newFilename = $helper->uploadArticleImage($uploadedFile);
+                $newFilename = $helper->uploadArticleImage($uploadedFile, $article->getImageFilename());
 
                 $article->setImageFilename($newFilename);
             }
@@ -67,6 +70,8 @@ class ArticleAdminController extends BaseController
      * @param UploaderHelper         $helper
      *
      * @return RedirectResponse|Response
+     *
+     * @throws Exception
      */
     public function edit(Article $article, Request $request, EntityManagerInterface $em, UploaderHelper $helper)
     {
@@ -80,7 +85,7 @@ class ArticleAdminController extends BaseController
             $uploadedFile = $form['imageFile']->getData();
 
             if ($uploadedFile) {
-                $newFilename = $helper->uploadArticleImage($uploadedFile);
+                $newFilename = $helper->uploadArticleImage($uploadedFile, $article->getImageFilename());
 
                 $article->setImageFilename($newFilename);
             }
@@ -97,6 +102,7 @@ class ArticleAdminController extends BaseController
 
         return $this->render('article_admin/edit.html.twig', [
             'articleForm' => $form->createView(),
+            'article' => $article,
         ]);
     }
 

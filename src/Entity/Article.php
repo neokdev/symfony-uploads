@@ -87,10 +87,16 @@ class Article
      */
     private $specificLocationName;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ArticleReference", mappedBy="article")
+     */
+    private $filename;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->filename = new ArrayCollection();
     }
 
     public function getId()
@@ -268,6 +274,8 @@ class Article
 
     /**
      * @Assert\Callback
+     * @param ExecutionContextInterface $context
+     * @param $payload
      */
     public function validate(ExecutionContextInterface $context, $payload)
     {
@@ -302,6 +310,37 @@ class Article
     public function setSpecificLocationName(?string $specificLocationName): self
     {
         $this->specificLocationName = $specificLocationName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ArticleReference[]
+     */
+    public function getFilename(): Collection
+    {
+        return $this->filename;
+    }
+
+    public function addFilename(ArticleReference $filename): self
+    {
+        if (!$this->filename->contains($filename)) {
+            $this->filename[] = $filename;
+            $filename->setArticle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFilename(ArticleReference $filename): self
+    {
+        if ($this->filename->contains($filename)) {
+            $this->filename->removeElement($filename);
+            // set the owning side to null (unless already changed)
+            if ($filename->getArticle() === $this) {
+                $filename->setArticle(null);
+            }
+        }
 
         return $this;
     }

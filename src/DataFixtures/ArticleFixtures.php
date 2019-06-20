@@ -6,6 +6,9 @@ use App\Entity\Article;
 use App\Service\UploaderHelper;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Exception;
+use League\Flysystem\FileExistsException;
+use League\Flysystem\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 
@@ -62,7 +65,6 @@ EOF
                 $article->setPublishedAt($this->faker->dateTimeBetween('-100 days', '-1 days'));
             }
 
-
             $imageFilename = $this->fakeUploadImage();
 
             $article->setAuthor($this->getRandomReference('main_users'))
@@ -89,6 +91,11 @@ EOF
         ];
     }
 
+    /**
+     * @return string
+     *
+     * @throws Exception
+     */
     private function fakeUploadImage(): string
     {
         $randomImage = $this->faker->randomElement(self::$articleImages);
@@ -97,6 +104,6 @@ EOF
         $fs->copy(__DIR__.'/images/'.$randomImage, $targetPath, true);
 
         return $this->helper
-            ->uploadArticleImage(new File($targetPath));
+            ->uploadArticleImage(new File($targetPath), null);
     }
 }
